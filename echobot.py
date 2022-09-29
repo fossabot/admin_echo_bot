@@ -8,9 +8,8 @@ from aiogram.utils.executor import start_webhook
 logging.basicConfig(level=logging.INFO)
 
 TOKEN = os.getenv('BOT_TOKEN')
-ADMIN = os.getenv('ADMIN')
-
-HEROKU_APP_NAME = os.getenv('admin-echo-bot')
+ADMIN = int(os.getenv('ADMIN'))
+HEROKU_APP_NAME = os.getenv('APP_NAME')
 
 # webhook settings
 WEBHOOK_HOST = f'https://{HEROKU_APP_NAME}.herokuapp.com'
@@ -37,10 +36,12 @@ dp = Dispatcher(bot)
 
 @dp.message_handler()
 async def echo(message: types.Message):
-    await bot.forward_message(chat_id=234296735, from_chat_id=message.chat.id, message_id=message.message_id)
-    if message.chat.id == ADMIN:
-        print(message)
+    print(message)
+    if message.chat.id == ADMIN and message.reply_to_message:
         await bot.send_message(chat_id=message.reply_to_message.forward_from.id, text=message.text)
+    else:
+        await message.reply('Запрос отправлен.')
+        await bot.forward_message(chat_id=ADMIN, from_chat_id=message.chat.id, message_id=message.message_id)
 
 
 # if __name__ == '__main__':
